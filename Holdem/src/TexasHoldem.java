@@ -45,24 +45,41 @@ public class TexasHoldem {
 			table[current_table_pos] = deck.dealTopCard();
 			
 			Card[] testHand = {
-					new Card(12,CardColors.HEARTS),
+					new Card(12,CardColors.CLUBS),
 					new Card(12, CardColors.SPADES),
-					new Card(12, CardColors.CLUBS),
-					new Card(3, CardColors.DIAMONDS),
-					new Card(3, CardColors.HEARTS),
-					new Card(5, CardColors.SPADES),
+					new Card(11, CardColors.SPADES),
+					new Card(10, CardColors.SPADES),
+					new Card(9, CardColors.SPADES),
+					new Card(8, CardColors.SPADES),
 					new Card(1, CardColors.HEARTS)
 			};
 			
-			getHighestHand(testHand);
+			for(Card c : getHighestHand(testHand))
+				System.out.println(c.getFullCard() + ",\n");
+				
 	}
 	
 	
-	public static void getHighestHand(Card[] table)
+	public static Card[] getHighestHand(Card[] table)
 	{
 		final int HAND_SIZE = 5;
 		List<Card[]> possibleHands = generateCardCombinations(table, HAND_SIZE);
-	
+		Card[] highestHand = new Card[HAND_SIZE];
+		int highestValue = 0;
+		for(Card[] hand : possibleHands)
+		{
+			int currentHandVal = checkHand(hand).getValue();
+			if(currentHandVal > highestValue)
+			{
+				highestValue = currentHandVal;
+				highestHand = hand;
+			}
+			else
+			{
+				//TODO: set by high card
+			}
+		}
+		return highestHand;
 	}
 	
 	
@@ -77,6 +94,9 @@ public class TexasHoldem {
 		combMaker(combinations, cards, new Card[r], 0, cards.length - 1, 0);
 		return combinations;
 	}
+	
+	
+	
 	
 	/*
 	 * helper function to "generateCardCombinations" function
@@ -103,7 +123,7 @@ public class TexasHoldem {
 			temp[index] = cards[start];
 			// push next element into next position
 			combMaker(combinations,cards,temp,start+1,end,index+1);
-			// push next element into this position
+			// push next element into current position
 			combMaker(combinations,cards,temp,start+1,end,index);
 		}
 	}
@@ -163,19 +183,19 @@ public class TexasHoldem {
 			
 			if(isRoyal)
 			{
-				System.out.println("Royal Flush");
+				//System.out.println("Royal Flush");
 				return HandValues.ROYAL_FLUSH;
 			}
 			else
 			{
-				System.out.println("Straight Flush");
+				//System.out.println("Straight Flush");
 				return HandValues.STRAIGHT_FLUSH;
 			}
 		}
 		
 		if(n_of_a_kind == 4)
 		{
-			System.out.println("Four of a Kind");
+			//System.out.println("Four of a Kind");
 			return HandValues.FOUR_OF_A_KIND;
 		}
 		
@@ -196,23 +216,23 @@ public class TexasHoldem {
 			}
 			if(pairs == 2)
 			{
-				System.out.println("Full House");
+				//System.out.println("Full House");
 				return HandValues.FULL_HOUSE;
 			}
 			
 			//check if straight or flush 
 			if(hasStraight)
 			{
-				System.out.println("Straight");
+				//System.out.println("Straight");
 				return HandValues.STRAIGHT;
 			}
 			if(hasFlush)
 			{
-				System.out.println("Flush");
+				//System.out.println("Flush");
 				return HandValues.FLUSH;
 			}
 			
-			System.out.println("Three of a kind");
+			//System.out.println("Three of a kind");
 			return HandValues.THREE_OF_A_KIND;
 		}
 			
@@ -231,7 +251,7 @@ public class TexasHoldem {
 			}
 			if(pairs == 2)
 			{
-				System.out.println("Full House");
+				//System.out.println("Full House");
 				return HandValues.FULL_HOUSE;
 			}
 			
@@ -247,14 +267,14 @@ public class TexasHoldem {
 			}
 			if(pairs == 2)
 			{
-				System.out.println("Two pairs");
+				//System.out.println("Two pairs");
 				return HandValues.TWO_PAIRS;
 			}
 			
-			System.out.println("Pair");
+			//System.out.println("Pair");
 			return HandValues.PAIR;
 		}
-		System.out.println("High Card");
+		//System.out.println("High Card");
 		return HandValues.HIGH_CARD;		
 	}
 	
