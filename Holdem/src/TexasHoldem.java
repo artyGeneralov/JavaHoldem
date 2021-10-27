@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class TexasHoldem {
@@ -42,16 +45,68 @@ public class TexasHoldem {
 			table[current_table_pos] = deck.dealTopCard();
 			
 			Card[] testHand = {
-					new Card(1,CardColors.HEARTS),
+					new Card(12,CardColors.HEARTS),
 					new Card(12, CardColors.SPADES),
-					new Card(11, CardColors.CLUBS),
-					new Card(2, CardColors.DIAMONDS),
-					new Card(3, CardColors.HEARTS)
+					new Card(12, CardColors.CLUBS),
+					new Card(3, CardColors.DIAMONDS),
+					new Card(3, CardColors.HEARTS),
+					new Card(5, CardColors.SPADES),
+					new Card(1, CardColors.HEARTS)
 			};
 			
-			checkHand(testHand);
+			getHighestHand(testHand);
 	}
 	
+	
+	public static void getHighestHand(Card[] table)
+	{
+		final int HAND_SIZE = 5;
+		List<Card[]> possibleHands = generateCardCombinations(table, HAND_SIZE);
+	
+	}
+	
+	
+	
+	
+	/*
+	 * Function to create all possible combinations of r cards from a given cards array
+	 * */
+	private static List<Card[]> generateCardCombinations(Card[] cards, int r)
+	{
+		List<Card[]> combinations = new ArrayList<>();
+		combMaker(combinations, cards, new Card[r], 0, cards.length - 1, 0);
+		return combinations;
+	}
+	
+	/*
+	 * helper function to "generateCardCombinations" function
+	 * 
+	 * receives:
+	 * 1.) ArrayList of Card object arrays
+	 * 2.) an array of Card objects from which to generate combinations
+	 * 3.) a Card object array as a placeholder for each combination (INITIALLY EMPTY)
+	 * 4.) a start variable to indicate the current value to insert into temp array (INITIALLY 0!)
+	 * 5.) end value to know that our start index doesn't go out of array bounds (INITIALLY cards.length -1 !)
+	 * 6.) index value that tracks which index in temp is being altered (INITIALLY 0)
+	 * 
+	 * function is recursive and pushes each combination into the combinations List
+	 * */
+	private static void combMaker(List<Card[]> combinations, Card[] cards, Card[] temp, int start, int end, int index)
+	{
+		if(index == temp.length)
+		{
+			Card[] combination = temp.clone();
+			combinations.add(combination);
+		}
+		else if(start <= end) //will simply end the function and return to the previous recursion level when start > end
+		{
+			temp[index] = cards[start];
+			// push next element into next position
+			combMaker(combinations,cards,temp,start+1,end,index+1);
+			// push next element into this position
+			combMaker(combinations,cards,temp,start+1,end,index);
+		}
+	}
 	
 	// State machine for the hands
 	// Returns a HandValues enum value
@@ -200,6 +255,22 @@ public class TexasHoldem {
 			return HandValues.PAIR;
 		}
 		System.out.println("High Card");
-		return HandValues.HIGH_CARD;
+		return HandValues.HIGH_CARD;		
+	}
+	
+	
+	/*
+	 * Private helper functions -> calculate factorial, and m choose n.
+	 */
+	private int fact(int n)
+	{
+		if(n == 1)
+			return 1;
+		return n*n-1;
+	}
+	
+	private int choose(int n, int m)
+	{
+		return fact(n) / (fact (m) * fact(n-m));
 	}
 }
