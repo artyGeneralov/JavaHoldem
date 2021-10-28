@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class TexasHoldem {
@@ -29,25 +30,20 @@ public class TexasHoldem {
 		Deck deck = new Deck();
 		Player player1 = new Player();
 		Player playerComp = new Player();
+		char answer;
+		System.out.println("Start a game? y/n");
+		answer = input.next().charAt(0);
+		while(answer == 'y')
+		{
+			gameLoop(deck, player1, playerComp);
+			System.out.println("Another hand? y/n");
+			answer = input.next().charAt(0);
+			player1 = new Player();
+			playerComp = new Player();
+			deck.createNewDeck();
+			deck.shuffleDeck();
+		}
 		
-
-		
-		//Hands are dealt
-		player1.dealHand(deck);
-		playerComp.dealHand(deck);
-			
-			Card[] testHand = {
-					new Card(12,CardColors.CLUBS),
-					new Card(12, CardColors.SPADES),
-					new Card(12, CardColors.DIAMONDS),
-					new Card(9, CardColors.SPADES),
-					new Card(7, CardColors.SPADES),
-					new Card(5, CardColors.SPADES),
-					new Card(0, CardColors.HEARTS)
-			};
-			
-			for(Card c : getHighestHand(testHand))
-				System.out.println(c.getFullCard() + ",\n");
 				
 	}
 	
@@ -57,7 +53,7 @@ public class TexasHoldem {
 	{
 		int compDeterminationScore = 0;
 		final int DETERMINATION_CHANGE_JUMP = 2;
-		float humanDeterminationScore;
+		//float humanDeterminationScore;
 		int answer = 1;
 		
 		// make a test for the first hand.
@@ -109,19 +105,38 @@ public class TexasHoldem {
 			 * if(highestCard >= 5 && highestCard <= 8)
 			 *		//unchanged determination
 			 */
-
-			
 			
 		}
 		else // if not the first hand
 		{
-			
-			
 			// set determination by hand value.
-			
+			compDeterminationScore = computerPlayer.getHighestHandValue();
 		}
 		
-		
+		Random rnd = new Random();
+		int delta = rnd.nextInt(100);
+		compDeterminationScore *= delta;
+		if(compDeterminationScore <= 100)
+		{
+			int failRand = rnd.nextInt(10);
+				if(failRand < 7)
+					answer = 0;
+				else
+					answer = (int) (compCash * (compDeterminationScore / 100f));
+		}
+		else if(compDeterminationScore > 100 && compDeterminationScore <600)
+		{
+			int failRand = rnd.nextInt(10);
+			if(failRand < 2)
+				answer = 0;
+			else
+				answer = (int)(compCash *(compDeterminationScore / 100f) * (failRand / 10f));
+		}
+		else
+		{
+			int r = rnd.nextInt(5);
+			answer = (int)(compCash * (compDeterminationScore / 100f) * (r/10f));
+		}
 		//set answer by determination, human bet, 
 		return answer;
 	}
@@ -135,7 +150,7 @@ public class TexasHoldem {
 		int playerChoice;
 		Card[] table = new Card[TABLE_SIZE]; //5
 		
-		int compBet = 0;
+		int compBet = -1;
 		int tablePos = 0;
 		humanPlayer.dealHand(deck);
 		compPlayer.dealHand(deck);
@@ -146,8 +161,9 @@ public class TexasHoldem {
 		
 		// show the player his hand
 		// ask whether he chooses to play or fold
+		System.out.println("\n********************************\n");
 		System.out.println("First Betting Phase: ");
-		System.out.printf("Your money: %d, Computer money: %d, betting pool: %d\n");
+		System.out.printf("Your money: %d, Computer money: %d\n", playerCash, compCash);
 		System.out.printf("Your hand is: %s\n", humanPlayer.showHand());
 		System.out.println("Proceed to bet or fold? ");
 		
@@ -175,6 +191,7 @@ public class TexasHoldem {
 		System.out.printf("Computer has bet: %d\n", compBet);
 		
 		// Flop
+		System.out.println("\n********************************\n");
 		System.out.println("Flop: ");
 		//deal cards
 		for(; tablePos < 3; tablePos++)
@@ -188,16 +205,22 @@ public class TexasHoldem {
 		System.out.println(humanPlayer.showHand());
 		
 		{
-			Card[] temp = {humanPlayer.getBestHandArray()[0],humanPlayer.getBestHandArray()[1], table[0], table[1], table[2]};
+			Card[] temp = {humanPlayer.getHandArray()[0],humanPlayer.getHandArray()[1], table[0], table[1], table[2]};
 			humanPlayer.setBestHand(getHighestHand(temp));
 			humanPlayer.setHighestHandValue(checkHand(getHighestHand(temp)));
+		}
+		
+		{
+			Card[] temp = {compPlayer.getHandArray()[0],compPlayer.getHandArray()[1], table[0], table[1], table[2]};
+			compPlayer.setBestHand(getHighestHand(temp));
+			compPlayer.setHighestHandValue(checkHand(getHighestHand(temp)));
 		}
 		
 												
 		
 		System.out.print("Your highest hand possible: ");
 		for(Card c : humanPlayer.getBestHandArray())
-			System.out.printf("%s ", c.getFullCard());
+			System.out.printf("%s, ", c.getFullCard());
 		System.out.printf(" --> %s\n", humanPlayer.getHighestHandName());
 		
 		System.out.println("Proceed to bet or fold? ");
@@ -214,7 +237,7 @@ public class TexasHoldem {
 		
 		//computer choice:
 		
-		compBet = computerBet(compPlayer, true, playerChoice);
+		compBet = computerBet(compPlayer, false, playerChoice);
 		if(compBet == 0)
 		{
 			//computer folded
@@ -227,7 +250,7 @@ public class TexasHoldem {
 		System.out.printf("Computer has bet: %d\n", compBet);
 		
 		// Turn
-		
+		System.out.println("\n********************************\n");
 		System.out.println("Turn: ");
 		//deal cards
 		table[tablePos] = deck.dealTopCard();
@@ -240,16 +263,22 @@ public class TexasHoldem {
 		System.out.println(humanPlayer.showHand());
 		
 		{
-			Card[] temp = {humanPlayer.getBestHandArray()[0],humanPlayer.getBestHandArray()[1], table[0], table[1], table[2], table[3]};
+			Card[] temp = {humanPlayer.getHandArray()[0],humanPlayer.getHandArray()[1], table[0], table[1], table[2], table[3]};
 			humanPlayer.setBestHand(getHighestHand(temp));
 			humanPlayer.setHighestHandValue(checkHand(getHighestHand(temp)));
+		}
+		
+		{
+			Card[] temp = {compPlayer.getHandArray()[0],compPlayer.getHandArray()[1], table[0], table[1], table[2], table[3]};
+			compPlayer.setBestHand(getHighestHand(temp));
+			compPlayer.setHighestHandValue(checkHand(getHighestHand(temp)));
 		}
 		
 												
 		
 		System.out.print("Your highest hand possible: ");
 		for(Card c : humanPlayer.getBestHandArray())
-			System.out.printf("%s ", c.getFullCard());
+			System.out.printf("%s, ", c.getFullCard());
 		System.out.printf(" --> %s\n", humanPlayer.getHighestHandName());
 		System.out.println("Proceed to bet or fold? ");
 		playerChoice = evalPlayerChoice(input.next());
@@ -265,7 +294,7 @@ public class TexasHoldem {
 		
 		//computer choice:
 		
-		compBet = computerBet(compPlayer, true, playerChoice);
+		compBet = computerBet(compPlayer, false, playerChoice);
 		if(compBet == 0)
 		{
 			//computer folded
@@ -278,6 +307,7 @@ public class TexasHoldem {
 		System.out.printf("Computer has bet: %d\n", compBet);
 		
 		// River
+		System.out.println("\n********************************\n");
 		System.out.println("River: ");
 		//deal cards
 		table[tablePos] = deck.dealTopCard();
@@ -290,17 +320,23 @@ public class TexasHoldem {
 		System.out.println(humanPlayer.showHand());
 		
 		{
-			Card[] temp = {humanPlayer.getBestHandArray()[0],humanPlayer.getBestHandArray()[1], table[0], table[1], table[2], table[3]
+			Card[] temp = {humanPlayer.getHandArray()[0],humanPlayer.getHandArray()[1], table[0], table[1], table[2], table[3]
 																								,table[4]};
 			humanPlayer.setBestHand(getHighestHand(temp));
 			humanPlayer.setHighestHandValue(checkHand(getHighestHand(temp)));
 		}
 		
+		{
+			Card[] temp = {compPlayer.getHandArray()[0],compPlayer.getHandArray()[1], table[0], table[1], table[2], table[3]
+																								,table[4]};
+			compPlayer.setBestHand(getHighestHand(temp));
+			compPlayer.setHighestHandValue(checkHand(getHighestHand(temp)));
+		}
 												
 		
 		System.out.print("Your highest hand possible: ");
 		for(Card c : humanPlayer.getBestHandArray())
-			System.out.printf("%s ", c.getFullCard());
+			System.out.printf("%s, ", c.getFullCard());
 		System.out.printf(" --> %s\n", humanPlayer.getHighestHandName());
 		
 		System.out.println("Proceed to bet or fold? ");
@@ -317,7 +353,7 @@ public class TexasHoldem {
 		
 		//computer choice:
 		
-		compBet = computerBet(compPlayer, true, playerChoice);
+		compBet = computerBet(compPlayer, false, playerChoice);
 		if(compBet == 0)
 		{
 			//computer folded
@@ -331,12 +367,7 @@ public class TexasHoldem {
 		
 		
 		//last evaluation
-		{
-			Card[] temp = {compPlayer.getBestHandArray()[0],compPlayer.getBestHandArray()[1], table[0], table[1], table[2], table[3]
-																								,table[4]};
-			compPlayer.setBestHand(getHighestHand(temp));
-			compPlayer.setHighestHandValue(checkHand(getHighestHand(temp)));
-		}
+
 		if(compPlayer.getHighestHandValue() > humanPlayer.getHighestHandValue())
 		{
 			System.out.printf("Computer player wins %d moneys!\n",bettingPool);
