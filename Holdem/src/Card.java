@@ -1,8 +1,8 @@
 
 public class Card {
 
-	int value;
-	CardColors color;
+	private int value;
+	private CardColors color;
 	
 	
 	public Card()
@@ -51,5 +51,12 @@ public class Card {
 				return (this.value+ 1) + " of " + this.color;
 		}
 		return name + " of " + this.color;
+	}
+	
+	public boolean isLargerThen(Card card)
+	{
+		if(this.value > card.getValue())
+				return true;
+		return false;
 	}
 }
